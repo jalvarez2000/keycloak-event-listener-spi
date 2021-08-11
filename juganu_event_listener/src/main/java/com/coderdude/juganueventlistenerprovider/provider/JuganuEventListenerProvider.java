@@ -1,4 +1,4 @@
-package com.coderdude.sampleeventlistenerprovider.provider;
+package com.coderdude.juganueventlistenerprovider.provider;
 
 import org.jboss.logging.Logger;
 import org.keycloak.events.Event;
@@ -23,11 +23,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 
-public class SampleEventListenerProvider implements EventListenerProvider {
+public class JuganuEventListenerProvider implements EventListenerProvider {
 
     private final KeycloakSession session;
 
-    public SampleEventListenerProvider(KeycloakSession session) {
+    public JuganuEventListenerProvider(KeycloakSession session) {
         this.session = session;
     }
 

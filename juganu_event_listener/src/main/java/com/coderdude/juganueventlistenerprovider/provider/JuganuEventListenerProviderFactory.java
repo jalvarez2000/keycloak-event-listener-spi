@@ -1,4 +1,4 @@
-package com.coderdude.sampleeventlistenerprovider.provider;
+package com.coderdude.juganueventlistenerprovider.provider;
 
 import org.keycloak.Config;
 import org.keycloak.events.EventListenerProvider;
@@ -8,13 +8,13 @@ import org.keycloak.models.KeycloakSessionFactory;
 
 
 
-public class SampleEventListenerProviderFactory implements EventListenerProviderFactory {
+public class JuganuEventListenerProviderFactory implements EventListenerProviderFactory {
 
 
     @Override
     public EventListenerProvider create(KeycloakSession keycloakSession) {
 
-        return new SampleEventListenerProvider(keycloakSession);
+        return new JuganuEventListenerProvider(keycloakSession);
     }
 
     @Override
@@ -34,6 +34,6 @@ public class SampleEventListenerProviderFactory implements EventListenerProvider
 
     @Override
     public String getId() {
-        return "sample_event_listener";
+        return "juganu_event_listener";
     }
 }

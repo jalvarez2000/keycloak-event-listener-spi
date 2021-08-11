@@ -10,7 +10,7 @@
     <description/>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>sample_event_listener</artifactId>
+    <artifactId>juganu_event_listener</artifactId>
     <packaging>jar</packaging>
 
     <dependencies>
@@ -51,7 +51,7 @@
     </dependencies>
 
     <build>
-        <finalName>sample-event-listener</finalName>
+        <finalName>juganu-event-listener</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
