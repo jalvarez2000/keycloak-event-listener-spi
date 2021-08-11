@@ -14,7 +14,7 @@ public class SampleEventListenerProviderFactory implements EventListenerProvider
     @Override
     public EventListenerProvider create(KeycloakSession keycloakSession) {
 
-        return new SampleEventListenerProvider();
+        return new SampleEventListenerProvider(keycloakSession);
     }
 
     @Override
