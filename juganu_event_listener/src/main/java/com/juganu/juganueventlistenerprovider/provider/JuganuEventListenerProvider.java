@@ -1,5 +1,6 @@
-package com.coderdude.juganueventlistenerprovider.provider;
+package com.juganu.juganueventlistenerprovider.provider;
 
+import com.juganu.juganutoken.JuganuCredentialsActionToken;
 import org.jboss.logging.Logger;
 import org.keycloak.events.Event;
 import org.keycloak.events.EventListenerProvider;
@@ -8,11 +9,14 @@ import org.keycloak.events.admin.AdminEvent;
 import org.keycloak.events.admin.OperationType;
 import org.keycloak.events.admin.ResourceType;
 import org.keycloak.models.KeycloakSession;
+import org.keycloak.models.KeycloakContext;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.RealmProvider;
 import org.keycloak.models.UserModel;
 import org.keycloak.email.DefaultEmailSenderProvider;
 import org.keycloak.email.EmailException;
+import org.keycloak.authentication.actiontoken.resetcred.ResetCredentialsActionToken;
+import org.keycloak.sessions.AuthenticationSessionCompoundId;
 
 import java.util.Map;
 import java.nio.file.Files;
@@ -21,6 +25,17 @@ import java.nio.charset.Charset;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import javax.mail.internet.MimeBodyPart;
+
+
+// ------------ COMENTARIOS PARA OMAR --------------------
+// Para compilar: mvn install. Esto te genera un fichero juganu-event-listener.jar
+// Para deploy: Copias en caliente este archivo en el directorio standalone/deployments/ de donde esté corriendo keycloak (por ejemplo, /opt/jboss/keycloak/)
+// Docker: Para poder desplegarlo para las pruebas de la semana que viene me he creado en mi entorno y he subido un docker con este JAR. Puedes ver en Dockerfile/deployment el DOckerfile con la forma de hacerlo.
+
+
+// Notas sobre el desarrollo: Básicamente estoy intentadno generar un "Juganu Token" con una periocidad limitada que sirva para cambiar la contraseña de un usuario en específico (función obtainResetTokenId), pero no lo consigo.
+// Hay muchas otras posiblidades siguiendo el modelo de Keycloak que estaba estudiando pero ya no me ha dado tiempo (mediante "insertanddo" nuestro flujo de autenticación por ejemplo, echa un vistazo por ejemplo a DefaultAuthenticationFlows.java en el código de Keycloak y ResetCredentialsEmail.java.
 
 
 public class JuganuEventListenerProvider implements EventListenerProvider {
@@ -33,7 +48,6 @@ public class JuganuEventListenerProvider implements EventListenerProvider {
 
     @Override
     public void onEvent(Event event) {
-
         System.out.println("Event Occurred:" + toString(event));
         System.out.println("Event: " + event.getType());
         if (EventType.UPDATE_PASSWORD.equals(event.getType())) {
@@ -58,14 +72,11 @@ public class JuganuEventListenerProvider implements EventListenerProvider {
                 userId = retval;
             }
 
-
             System.out.println("User id" + ": " + userId);
             UserModel user = this.session.users().getUserById(userId, this.session.getContext().getRealm());
             System.out.println("User name" + ": " + user.getFirstName());
-
-            try {
-                String template = readTemplate("password-change.html");
-                template = replacePlaceholder(template,"$FIRST_NAME",user.getFirstName());
+            String token = obtainResetTokenId(session,userId,user.getEmail(),adminEvent.getAuthDetails().getClientId());                try {
+                String template = readTemplate("activate-your-account.html");
                 template = replacePlaceholder(template,"$EMAIL",user.getEmail());
                 sendMail(user, "CREATE USER",template);
             }
@@ -73,13 +84,30 @@ public class JuganuEventListenerProvider implements EventListenerProvider {
                 System.out.println("Error reading template from resource file: " + e);
             };
         }
-
-        System.out.println("-----------------------------------------------------------");
     }
 
     @Override
     public void close() {
 
+    }
+
+    private String obtainResetTokenId(KeycloakSession session, String userId, String emailId, String clientId) {
+        String id = "";
+        /*session.getContext()
+                .getRealm()
+                .getClientAuthenticationFlow()
+                .getAuthenticationSession();*/
+
+
+        /*session.authenticationSessions().createRootAuthenticationSession(session.realms().getRealm(event.getRealmId()))
+                .createAuthenticationSession(clientId)
+        String authSessionEncodedId = AuthenticationSessionCompoundId.fromAuthSession(session.getContext().getAuthenticationSession()).getEncodedId();*/
+        JuganuCredentialsActionToken token = new JuganuCredentialsActionToken(userId,2592000,clientId);
+        KeycloakContext context = this.session.getContext();
+
+        System.out.println("Token" + token.serialize(session, context.getRealm(),context.getUri()));
+
+        return id;
     }
 
     private String readTemplate(String templateName) {
@@ -93,7 +121,6 @@ public class JuganuEventListenerProvider implements EventListenerProvider {
                 sb.append(System.lineSeparator());
                 line = reader.readLine();
             }
-            System.out.println("Email Template: " + ": " + sb.toString());
         }
         catch (Exception e) {
             System.out.println("Error reading template from resource file: " + e);

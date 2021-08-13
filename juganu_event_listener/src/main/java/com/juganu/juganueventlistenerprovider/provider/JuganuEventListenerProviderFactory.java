@@ -1,11 +1,13 @@
-package com.coderdude.juganueventlistenerprovider.provider;
+package com.juganu.juganueventlistenerprovider.provider;
 
 import org.keycloak.Config;
 import org.keycloak.events.EventListenerProvider;
 import org.keycloak.events.EventListenerProviderFactory;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.KeycloakSessionFactory;
-
+import org.keycloak.models.AuthenticationExecutionModel;
+import org.keycloak.models.AuthenticationFlowModel;
+import org.keycloak.models.RealmModel;
 
 
 public class JuganuEventListenerProviderFactory implements EventListenerProviderFactory {
@@ -13,7 +15,6 @@ public class JuganuEventListenerProviderFactory implements EventListenerProvider
 
     @Override
     public EventListenerProvider create(KeycloakSession keycloakSession) {
-
         return new JuganuEventListenerProvider(keycloakSession);
     }
 
@@ -36,4 +37,6 @@ public class JuganuEventListenerProviderFactory implements EventListenerProvider
     public String getId() {
         return "juganu_event_listener";
     }
+
+
 }
